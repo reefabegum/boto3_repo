@@ -17,3 +17,4 @@ resource "aws_lambda_function" "lambda_image_rekognition" {
 
 
 }
+

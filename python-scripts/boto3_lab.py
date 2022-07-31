@@ -1,8 +1,12 @@
 import boto3
 import json
-s3_client = boto3.client('s3')
+
+
+s3_client = boto3.client('s3')                          #initialize boto3 client
 ec2_client = boto3.client('ec2')
-# response = s3_client.list_buckets()
+
+
+# response = s3_client.list_buckets()                 #list bucket function
 # print(json.dumps(response, default=str))
 # print(response)
 response = ec2_client.describe_instances(

@@ -1,5 +1,5 @@
-resource "aws_iam_role" "lambda_assume_role" {
-  name = "test_role"
+resource "aws_iam_role" "lambda_assume_role" {  
+  name = "lambda-role"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -18,6 +18,38 @@ resource "aws_iam_role" "lambda_assume_role" {
   })
 
   tags = {
-    tag-key = "labs-lambda-assume-role"
+    name = "lambda-role"
   }
+}
+
+data "aws_iam_policy_document" "lab_lambda_for_rekognition" {
+  statement {
+    sid = "LambdaForRekognition"
+    actions = [
+      "rekognition:*",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "lab_lambda_for_rekognition_policy" {
+  name = "lab-lambda-for-rekognition"
+  description = "Allow Lambda function to use rekognition"
+  policy = data.aws_iam_policy_document.lab_lambda_for_rekognition.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda" {
+  role = aws_iam_role.lambda_assume_role.name
+  policy_arn = aws_iam_policy.lab_lambda_for_rekognition_policy.arn
+}
+
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_image_rekognition.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.image_storage_bucket.arn
 }
