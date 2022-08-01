@@ -14,7 +14,13 @@ resource "aws_lambda_function" "lambda_image_rekognition" {
 
   runtime = "python3.8"
   timeout = 10
-
-
+  environment {
+    variables = {
+      "METADATA_TABLE" = aws_dynamodb_table.lambda_image_rekognition.name
+    }
+  }
 }
+
+
+
 
